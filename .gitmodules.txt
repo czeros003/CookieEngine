@@ -1,0 +1,6 @@
+[submodule "Dependencies/Ogre"]
+	path = Dependencies/Ogre
+	url = https://github.com/OGRECave/ogre-next
+[submodule "Dependencies/imgui"]
+	path = Dependencies/imgui
+	url = https://github.com/ocornut/imgui.git

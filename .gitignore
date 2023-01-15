@@ -34,7 +34,5 @@
 # Folders
 **/bin
 **/build
-**/Dependencies/Ogre
-**/Dependencies/imgui
 **/out
 **/Scripts
