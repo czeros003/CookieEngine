@@ -47,10 +47,10 @@ namespace Demo
 
     private:
         void _keyEvent(const SDL_KeyboardEvent& arg, bool keyPressed);
-        void SetImGuiStyle(bool bStyleDark, float alpha);
+        static void SetImGuiStyle();
         
-        CEngine::EditorWindow* ew;
-        CEngine::WCameraSettings* ew1;
+        CEngine::EditorWindow*  EditorStyleWindow;
+        std::shared_ptr<CEngine::WCameraSettings> CameraSettings;
     };
 
 }

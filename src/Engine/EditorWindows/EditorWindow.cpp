@@ -4,40 +4,37 @@
 
 namespace CEngine
 {
-	CEngine::EditorWindow::EditorWindow(const char *windowName, bool bMoveCameraWhileHovered) :
+	EditorWindow::EditorWindow(const char *windowName, bool bMoveCameraWhileHovered) :
 	windowName(windowName),
 	bMoveCameraWhileHovered(bMoveCameraWhileHovered)
 	{
-		
+		initStyle();
 	}
 
-	CEngine::EditorWindow::EditorWindow(const char *windowName) :
+	EditorWindow::EditorWindow(const char *windowName) :
 	windowName(windowName),
 	bMoveCameraWhileHovered(false)
 	{
-		
+		initStyle();
 	}
 
-	void EditorWindow::init()
+	void EditorWindow::initStyle()
 	{
 		
 	}
-
 	
 	void EditorWindow::startUiRender()
 	{
-		ImGuiStyle& style = ImGui::GetStyle();
-
-		ImGui::Begin(windowName);
-		if (ImGui::IsWindowHovered())
-		{
-			style.Colors[ImGuiCol_WindowBg] = ImVec4(0.2f, 0.3f, 0.6f, 0.5f);
-		}
-		else
-		{
-			style.Colors[ImGuiCol_WindowBg] = ImVec4(0.38f, 0.36f, 0.36f, 0.5f);
-		}
-
-		ImGui::End();
+		// ImGuiStyle& style = ImGui::GetStyle();
+		//
+		// if (ImGui::IsWindowHovered())
+		// {
+		// 	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.2f, 0.3f, 0.6f, 0.5f);
+		// }
+		// else
+		// {
+		// 	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.38f, 0.36f, 0.36f, 0.5f);
+		// }
+		
 	}
 }

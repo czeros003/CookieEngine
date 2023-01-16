@@ -8,12 +8,10 @@ namespace CEngine
 		EditorWindow(const char* windowName, bool bMoveCameraWhileHovered);
 		EditorWindow(const char* windowName);
 
-		// virtual void startUiRender();
-
 	private:
 		const char* windowName;
 		bool bMoveCameraWhileHovered;
-		void init();
+		void initStyle();
 
 	protected:
 		virtual ~EditorWindow() = default;

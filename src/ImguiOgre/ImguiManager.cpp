@@ -538,6 +538,13 @@ void ImguiManager::createFontTexture() {
     // Build texture atlas
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+    /*
+     * Adding custom fonts
+     */
+    io.Fonts->AddFontFromFileTTF("C:\\Inzynierka\\fonts\\JetBrainsMono-Regular.ttf", 16.0f);
+    io.Fonts->AddFontFromFileTTF("C:\\Inzynierka\\fonts\\JetBrainsMonoNL-Regular.ttf", 16.0f);
+    io.Fonts->AddFontFromFileTTF("C:\\Inzynierka\\fonts\\segoeui.ttf", 16.0f);
+    io.Fonts->Build();
     unsigned char* pixels;
     int width, height;
 

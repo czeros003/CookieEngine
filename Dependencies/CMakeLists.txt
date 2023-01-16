@@ -11,6 +11,7 @@ set(SOURCE_FILES
         ${IMGUI_BACKENDS_DIR}/imgui_impl_opengl3.cpp
         ${IMGUI_BACKENDS_DIR}/imgui_impl_opengl2.cpp
         ${IMGUI_BACKENDS_DIR}/imgui_impl_sdl.cpp
+        ${IMGUI_SOURCE_DIR}/misc/freetype/imgui_freetype.cpp
         #${IMGUI_BACKENDS_DIR}/imgui_impl_sdlrenderer.cpp
         )
 

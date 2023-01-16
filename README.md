@@ -21,6 +21,10 @@ https://ogrecave.github.io/ogre-next/api/latest/_setting_up_ogre_windows.html#Bu
 Works out-of-the-box. If not, please add CMakeLists with ImGui lib definition to Dependencies folder.
 Then include it in main CMakeLists.
 
+### Special thanks
+For creating imgui integration files and implementation:
+https://github.com/edherbert/ogre-next-imgui
+
 ### Execution build
 
 After proper installation hit compile on release version. 
@@ -29,4 +33,5 @@ For more info / errors fix ping me in sections below.
 ## How it works
 
 ### What it includes
+
 
