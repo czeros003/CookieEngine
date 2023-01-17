@@ -77,6 +77,11 @@ namespace CEngine
     //-----------------------------------------------------------------------------------
     bool CEngine::CCameraController::keyPressed(const SDL_KeyboardEvent& arg)
     {
+        if (!bMovableCamera)
+        {
+            return false;
+        }
+	    
         if (arg.keysym.scancode == SDL_SCANCODE_LSHIFT)
             mSpeedMofifier = true;
 
@@ -127,9 +132,8 @@ namespace CEngine
         {
             return;
         }
-
-        ImGuiIO& io = ImGui::GetIO();
-        if (io.MouseDown[1])
+	    
+        if (ImGui::GetIO().MouseDown[1])
         {
             float width = static_cast<float>(mGraphicsSystem->getRenderWindow()->getWidth());
             float height = static_cast<float>(mGraphicsSystem->getRenderWindow()->getHeight());

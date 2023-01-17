@@ -175,7 +175,7 @@ namespace Demo
             mCameraController = new CEngine::CCameraController(mGraphicsSystem, false);
             
             // EditorStyleWindow = new CEngine::EditorWindow("Sample");
-            CameraSettings = std::make_shared<CEngine::WCameraSettings>("Camera Settings", true ,mCameraController);
+            CameraSettings = std::make_shared<CEngine::WCameraSettings>("Camera Settings" ,mCameraController);
         }
 
         //Register imgui for rendering
@@ -186,8 +186,6 @@ namespace Demo
 
         SetImGuiStyle();
         
-
-
         //Setup imgui key codes for SDL2
         {
             ImGuiIO& io = ImGui::GetIO();
@@ -271,7 +269,20 @@ namespace Demo
         LightSetting();
         CameraSettings->startUiRender();
         ImGui::ShowStyleEditor();
+        ImGui::ShowDebugLogWindow();
+        // if (CameraSettings->bMoveCameraWhileHovered)
+        // {
+        //     mCameraController->bMovableCamera = !ImGui::IsWindowHovered();
+        // }
+        // else
+        // {
+        //     mCameraController->bMovableCamera = !ImGui::IsAnyItemHovered();
+        // }
+        mCameraController->bMovableCamera = CameraSettings->bMoveCameraWhileHovered || (!ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered());
+        // mCameraController->bMovableCamera = !ImGui::IsWindowHovered() || CameraSettings->bMoveCameraWhileHovered || !ImGui::IsAnyItemHovered();
 
+        // ImGui::IsAnyItemHovered();
+        
         TutorialGameState::update(timeSinceLast);
     }
     //-----------------------------------------------------------------------------------
@@ -447,8 +458,8 @@ namespace Demo
         colors[ImGuiCol_Tab]                    = ImVec4(0.04f, 0.04f, 0.04f, 0.80f);
         colors[ImGuiCol_TabHovered]             = ImVec4(0.42f, 0.42f, 0.42f, 1.00f);
         colors[ImGuiCol_TabActive]              = ImVec4(0.42f, 0.42f, 0.42f, 0.50f);
-        colors[ImGuiCol_TabUnfocused]           = ImVec4(0.07f, 0.10f, 0.15f, 0.97f);
-        colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
+        colors[ImGuiCol_TabUnfocused]           = ImVec4(1.00f, 1.00f, 1.00f, 0.04f);
+        colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
         colors[ImGuiCol_DockingPreview]         = ImVec4(0.47f, 0.25f, 0.00f, 0.34f);
         colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
         colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
@@ -466,7 +477,6 @@ namespace Demo
         colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
         colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
         colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-        
     }
     
 }

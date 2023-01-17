@@ -18,9 +18,10 @@ namespace CEngine
 
         void startUiRender() override;
 
+        bool bMoveCameraWhileHovered;
+
     private:
         const char* windowName;
-        bool bMoveCameraWhileHovered;
         CCameraController* mCameraController;
         
     };

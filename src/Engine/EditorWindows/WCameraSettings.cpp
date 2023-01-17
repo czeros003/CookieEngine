@@ -3,6 +3,7 @@
 namespace CEngine
 {
     WCameraSettings::WCameraSettings(CCameraController* mCameraController): EditorWindow(windowName),
+        bMoveCameraWhileHovered(false),
         windowName("Camera Settings"),
         mCameraController(mCameraController)
     {
@@ -10,13 +11,14 @@ namespace CEngine
 
     WCameraSettings::WCameraSettings(const char* windowName,
         bool bMoveCameraWhileHovered, CCameraController* mCameraController): EditorWindow(windowName, bMoveCameraWhileHovered),
-        windowName(windowName),
         bMoveCameraWhileHovered(bMoveCameraWhileHovered),
+        windowName(windowName),
         mCameraController(mCameraController)
     {
     }
 
-    WCameraSettings::WCameraSettings(const char* windowName, CCameraController* mCameraController): EditorWindow(windowName),
+    WCameraSettings::WCameraSettings(const char* windowName, CCameraController* mCameraController):
+        EditorWindow(windowName), bMoveCameraWhileHovered(false),
         windowName(windowName),
         mCameraController(mCameraController)
     {
@@ -31,14 +33,12 @@ namespace CEngine
     void WCameraSettings::startUiRender()
     {
         EditorWindow::startUiRender();
-
-        static bool bCameraMovable = true;
-
-        ImGui::Begin(windowName);
+        
+        ImGui::Begin("Camera Settings");
         ImGui::Text("Basic Main Viewport Camera Settings.");
-        ImGui::Checkbox("Enable Camera Movement While In UI", &bCameraMovable);
+        ImGui::Checkbox("Enable Camera Movement While In UI", &bMoveCameraWhileHovered);
 
-        mCameraController->bMovableCamera = bCameraMovable || !ImGui::IsWindowHovered();
+        // mCameraController->bMovableCamera = bMoveCameraWhileHovered || !ImGui::IsWindowHovered();
 
         ImGui::Text("Camera Speed");
         ImGui::SameLine();

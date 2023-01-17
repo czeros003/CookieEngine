@@ -2,6 +2,8 @@
 
 #include <imgui/imgui.h>
 
+#include "Engine/Camera/CCameraController.h"
+
 namespace CEngine
 {
 	EditorWindow::EditorWindow(const char *windowName, bool bMoveCameraWhileHovered) :
@@ -25,15 +27,14 @@ namespace CEngine
 	
 	void EditorWindow::startUiRender()
 	{
-		// ImGuiStyle& style = ImGui::GetStyle();
-		//
+		// ImGui::ShowStyleEditor();
 		// if (ImGui::IsWindowHovered())
 		// {
-		// 	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.2f, 0.3f, 0.6f, 0.5f);
+		// 	ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
 		// }
 		// else
 		// {
-		// 	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.38f, 0.36f, 0.36f, 0.5f);
+		// 	ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0.2f, 0.3f, 0.6f, 0.0f);
 		// }
 		
 	}
