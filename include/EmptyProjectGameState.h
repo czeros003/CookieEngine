@@ -11,6 +11,7 @@
 #include "OgrePrerequisites.h"
 #include "Engine/EditorWindows/EditorWindow.h"
 #include "Engine/EditorWindows/WCameraSettings.h"
+#include "Engine/EditorWindows/WMainMenuBar.h"
 
 #include "Engine/GameState/CookieBaseState.h"
 
@@ -51,6 +52,7 @@ namespace Demo
         
         CEngine::EditorWindow*  EditorStyleWindow;
         std::shared_ptr<CEngine::WCameraSettings> CameraSettings;
+        std::shared_ptr<CEngine::WMainMenuBar> MainMenuBar;
     };
 
 }

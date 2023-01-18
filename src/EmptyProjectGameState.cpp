@@ -176,6 +176,7 @@ namespace Demo
             
             // EditorStyleWindow = new CEngine::EditorWindow("Sample");
             CameraSettings = std::make_shared<CEngine::WCameraSettings>("Camera Settings" ,mCameraController);
+            MainMenuBar = std::make_shared<CEngine::WMainMenuBar>("Main Menu Bar");
         }
 
         //Register imgui for rendering
@@ -270,18 +271,8 @@ namespace Demo
         CameraSettings->startUiRender();
         ImGui::ShowStyleEditor();
         ImGui::ShowDebugLogWindow();
-        // if (CameraSettings->bMoveCameraWhileHovered)
-        // {
-        //     mCameraController->bMovableCamera = !ImGui::IsWindowHovered();
-        // }
-        // else
-        // {
-        //     mCameraController->bMovableCamera = !ImGui::IsAnyItemHovered();
-        // }
+        MainMenuBar->startUiRender();
         mCameraController->bMovableCamera = CameraSettings->bMoveCameraWhileHovered || (!ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered());
-        // mCameraController->bMovableCamera = !ImGui::IsWindowHovered() || CameraSettings->bMoveCameraWhileHovered || !ImGui::IsAnyItemHovered();
-
-        // ImGui::IsAnyItemHovered();
         
         TutorialGameState::update(timeSinceLast);
     }
