@@ -59,21 +59,29 @@ int mainApp( int argc, const char *argv[] )
 namespace Demo
 {
 
-    class ColibriGuiGraphicsSystem : public GraphicsSystem
+    class CookieEngineSystem final : public GraphicsSystem
     {
-        virtual Ogre::CompositorWorkspace* setupCompositor()
+        Ogre::CompositorWorkspace* setupCompositor() override
         {
             Ogre::CompositorManager2* compositorManager = mRoot->getCompositorManager2();
+            //add
+            Ogre::RenderSystem *renderSystem = mRoot->getRenderSystem();
+            const Ogre::RenderSystemCapabilities *caps = renderSystem->getCapabilities();
+            //add
 
-            const Ogre::String workspaceName("test Workspace");
+            Ogre::String workspaceName("CookieEngineWorkspace");
             if (!compositorManager->hasWorkspaceDefinition(workspaceName)) {
-                compositorManager->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue(0.2, 0.4, 0.6, 1), Ogre::IdString());
+                compositorManager->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue(0.2f, 0.4f, 0.6f, 1.f), Ogre::IdString());
             }
+            
+            // if( mRenderWindow->isMultisample() &&
+            //     caps->hasCapability( Ogre::RSC_EXPLICIT_FSAA_RESOLVE ) )
+            //         workspaceName = "HdrWorkspaceMsaa";
 
-            return compositorManager->addWorkspace(mSceneManager, mRenderWindow->getTexture(), mCamera, workspaceName, true);
+            return compositorManager->addWorkspace( mSceneManager, mRenderWindow->getTexture(), mCamera, workspaceName, true );
         }
 
-        void registerHlms(void)
+        void registerHlms() override
         {
             Ogre::ConfigFile cf;
             cf.load(mResourcePath + "resources2.cfg");
@@ -175,9 +183,8 @@ namespace Demo
 #endif
         }
 
-        virtual void setupResources(void)
+        void setupResources() override
         {
-
             Ogre::String dataPath;
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
             dataPath = mResourcePath + "/Data/";
@@ -194,22 +201,41 @@ namespace Demo
 
             Ogre::ConfigFile cf;
             cf.load(mResourcePath + "resources2.cfg");
+            // std::cout << mResourcePath << "path xd";
 
-            Ogre::String dataFolder = cf.getSetting("DoNotUseAsResource", "Hlms", "");
+            Ogre::String originalDataFolder = cf.getSetting("DoNotUseAsResource", "Hlms", "");
 
-            if (dataFolder.empty())
-                dataFolder = "./";
-            else if (*(dataFolder.end() - 1) != '/')
-                dataFolder += "/";
+            if (originalDataFolder.empty())
+                originalDataFolder = "./";
+            else if (*(originalDataFolder.end() - 1) != '/')
+                originalDataFolder += "/";
 
-            dataFolder += "2.0/scripts/materials/PbsMaterials";
-
-            addResourceLocation(dataFolder, "FileSystem", "General");
+            // originalDataFolder += "2.0/scripts/materials/PbsMaterials";
+            //
+            // addResourceLocation(originalDataFolder, getMediaReadArchiveType(), "General");
+            const char *c_locations[11] = {
+                "2.0/scripts/materials/Tutorial_SMAA",
+                "2.0/scripts/materials/Tutorial_SMAA/GLSL",
+                "2.0/scripts/materials/Tutorial_SMAA/HLSL",
+                "2.0/scripts/materials/Tutorial_SMAA/Metal",
+                "2.0/scripts/materials/Tutorial_SMAA/Vulkan",
+                "2.0/scripts/materials/HDR",
+                "2.0/scripts/materials/HDR/GLSL",
+                "2.0/scripts/materials/HDR/HLSL",
+                "2.0/scripts/materials/HDR/Metal",
+                "2.0/scripts/materials/PbsMaterials",
+                "2.0/scripts/materials/HDR_SMAA",
+            };
+            
+            for( size_t i = 0; i < 11; ++i )
+            {
+                Ogre::String dataFolder = originalDataFolder + c_locations[i];
+                addResourceLocation( dataFolder, getMediaReadArchiveType(), "General" );
             }
+        }
 
     public:
-        ColibriGuiGraphicsSystem(GameState* gameState) :
-            GraphicsSystem(gameState)
+        CookieEngineSystem(GameState* gameState) : GraphicsSystem(gameState)
         {
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
             //mResourcePath = Ogre::macBundlePath() + "/Contents/Resources/Data/";
@@ -250,7 +276,7 @@ namespace Demo
                 CharToOem(path, oemPath);
                 mWriteAccessFolder = std::string(oemPath);
 #endif
-                mWriteAccessFolder += "/ColibriGui/";
+                mWriteAccessFolder += "/CookieEngine/";
 
                 //Attempt to create directory where config files go
                 if (!CreateDirectoryA(mWriteAccessFolder.c_str(), NULL) &&
@@ -280,7 +306,7 @@ namespace Demo
             else
             {
                 //Create "~/.config/ColibriGui"
-                mWriteAccessFolder += "/ColibriGui/";
+                mWriteAccessFolder += "/CookieEngine/";
                 result = mkdir(mWriteAccessFolder.c_str(), S_IRWXU | S_IRWXG);
                 errorReason = errno;
 
@@ -312,10 +338,10 @@ namespace Demo
         GameState** outLogicGameState,
         LogicSystem** outLogicSystem)
     {
-        OgreNextImguiGameState* gfxGameState = new OgreNextImguiGameState(
+        OgreNextImGuiGameState* gfxGameState = new OgreNextImGuiGameState(
             "Cookie Engine");
 
-        GraphicsSystem* graphicsSystem = new ColibriGuiGraphicsSystem(gfxGameState);
+        GraphicsSystem* graphicsSystem = new CookieEngineSystem(gfxGameState);
 
         gfxGameState->_notifyGraphicsSystem(graphicsSystem);
 
@@ -332,7 +358,7 @@ namespace Demo
         delete graphicsGameState;
     }
 
-    const char* MainEntryPoints::getWindowTitle(void)
+    const char* MainEntryPoints::getWindowTitle()
     {
         return "Cookie Engine";
     }

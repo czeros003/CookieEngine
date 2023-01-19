@@ -16,6 +16,9 @@ For OGRE and it's dependencies do build with this tutorial step-by-step
 
 https://ogrecave.github.io/ogre-next/api/latest/_setting_up_ogre_windows.html#BuildingOgreWindows
 
+Include SDL2 build library to Release folder in bin.
+To run DirectX add amd_ags_x64.dll
+
 ### ImGui
 
 Works out-of-the-box. If not, please add CMakeLists with ImGui lib definition to Dependencies folder.

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <OgreMesh.h>
+#include <OgreWindow.h>
 #include <Engine/Camera/CCameraController.h>
 
 #include "GraphicsSystem.h"
@@ -11,17 +12,23 @@
 #include "OgreItem.h"
 #include "OgreSceneManager.h"
 
-#include "OgreMesh2.h"
 #include "OgreMeshManager.h"
 #include "OgreMeshManager2.h"
 
 #include "OgreHlmsPbs.h"
 #include "OgreRoot.h"
-#include "../Dependencies/imgui/backends/imgui_impl_opengl3.h"
 
 #include "SdlInputHandler.h"
 #include "Engine/EditorWindows/EditorWindow.h"
 #include "Engine/EditorWindows/WCameraSettings.h"
+#include "Utils/HdrUtils.h"
+
+#include "OgreHlmsPbsDatablock.h"
+#include "OgreHlmsSamplerblock.h"
+
+#include "OgreHlmsManager.h"
+#include "OgreTextureFilters.h"
+#include "OgreTextureGpuManager.h"
 
 using namespace Demo;
 
@@ -33,21 +40,229 @@ namespace Demo
             return true;
         }
     };
-    
 
-    OgreNextImguiGameState::OgreNextImguiGameState(const Ogre::String& helpDescription) :
-        TutorialGameState(helpDescription)
+
+    OgreNextImGuiGameState::OgreNextImGuiGameState(const Ogre::String& helpDescription) :
+        TutorialGameState(helpDescription),
+#ifdef OGRE_BUILD_COMPONENT_ATMOSPHERE
+        mAtmosphere( 0 ),
+#endif
+        mAnimateObjects(true),
+        mCurrentPreset( std::numeric_limits<Ogre::uint32>::max() ),
+        mExposure( 0.0f ),
+        mMinAutoExposure( -2.5f ),
+        mMaxAutoExposure( 2.5f ),
+        mBloomFullThreshold( 5.0f ),
+        mainLight(nullptr),
+        sceneManager(nullptr),
+        EditorStyleWindow(nullptr)
     {
-        
     }
+
+    void OgreNextImGuiGameState::switchPreset(int direction)
+    {
+        struct Preset
+        {
+            const char *name{};
+            Ogre::ColourValue skyColour;
+            Ogre::ColourValue ambUpperHemisphere;
+            Ogre::ColourValue ambLowerHemisphere;
+            float lightPower[3]{};
+            float exposure{};
+            float minAutoExposure{};
+            float maxAutoExposure{};
+            float bloomThreshold{};
+            float envmapScale{};
+        };
+
+        const Preset c_presets[] = {
+            {
+                "Bright, sunny day",
+                Ogre::ColourValue( 0.2f, 0.4f, 0.6f ) * 60.0f,  // Sky
+                Ogre::ColourValue( 0.3f, 0.50f, 0.7f ) * 4.5f,
+                Ogre::ColourValue( 0.6f, 0.45f, 0.3f ) * 2.925f,
+                {
+                    97.0f,      // Sun power
+                    1.5f, 1.5f  // Lights
+                },
+                0.0f,   // Exposure
+                -1.0f,  // Exposure
+                2.5f,   // Exposure
+                5.0f,   // Bloom
+                16.0f   // Env. map scale
+            },
+            {
+                "Average, slightly hazy day",
+                Ogre::ColourValue( 0.2f, 0.4f, 0.6f ) * 32.0f,  // Sky
+                Ogre::ColourValue( 0.3f, 0.50f, 0.7f ) * 3.15f,
+                Ogre::ColourValue( 0.6f, 0.45f, 0.3f ) * 2.0475f,
+                {
+                    48.0f,      // Sun power
+                    1.5f, 1.5f  // Lights
+                },
+                0.0f,   // Exposure
+                -2.0f,  // Exposure
+                2.5f,   // Exposure
+                5.0f,   // Bloom
+                8.0f    // Env. map scale
+            },
+            {
+                "Heavy overcast day",
+                Ogre::ColourValue( 0.4f, 0.4f, 0.4f ) * 4.5f,  // Sky
+                Ogre::ColourValue( 0.5f, 0.5f, 0.5f ) * 0.4f,
+                Ogre::ColourValue( 0.5f, 0.5f, 0.5f ) * 0.365625f,
+                {
+                    6.0625f,    // Sun power
+                    1.5f, 1.5f  // Lights
+                },
+                0.0f,   // Exposure
+                -2.5f,  // Exposure
+                1.0f,   // Exposure
+                5.0f,   // Bloom
+                0.5f    // Env. map scale
+            },
+            {
+                "Gibbous moon night",
+                Ogre::ColourValue( 0.27f, 0.3f, 0.6f ) * 0.01831072f,  // Sky
+                Ogre::ColourValue( 0.5f, 0.5f, 0.50f ) * 0.003f,
+                Ogre::ColourValue( 0.4f, 0.5f, 0.65f ) * 0.00274222f,
+                {
+                    0.0009251f,  // Sun power
+                    1.5f, 1.5f   // Lights
+                },
+                0.65f,            // Exposure
+                -2.5f,            // Exposure
+                3.0f,             // Exposure
+                5.0f,             // Bloom
+                0.0152587890625f  // Env. map scale
+            },
+            {
+                "Gibbous moon night w/ powerful spotlights",
+                Ogre::ColourValue( 0.27f, 0.3f, 0.6f ) * 0.01831072f,  // Sky
+                Ogre::ColourValue( 0.5f, 0.5f, 0.50f ) * 0.003f,
+                Ogre::ColourValue( 0.4f, 0.5f, 0.65f ) * 0.00274222f,
+                {
+                    0.0009251f,  // Sun power
+                    6.5f, 6.5f   // Lights
+                },
+                0.65f,            // Exposure
+                -2.5f,            // Exposure
+                3.0f,             // Exposure
+                5.0f,             // Bloom
+                0.0152587890625f  // Env. map scale
+            },
+            {
+                "JJ Abrams style",
+                Ogre::ColourValue( 0.2f, 0.4f, 0.6f ) * 6.0f,  // Sky
+                Ogre::ColourValue( 0.3f, 0.50f, 0.7f ) * 0.1125f,
+                Ogre::ColourValue( 0.6f, 0.45f, 0.3f ) * 0.073125f,
+                {
+                    4.0f,           // Sun power
+                    17.05f, 17.05f  // Lights
+                },
+                0.5f,  // Exposure
+                1.0f,  // Exposure
+                2.5f,  // Exposure
+                3.0f,  // Bloom
+                1.0f,  // Env. map scale
+            },
+        };
+
+        {
+            const Ogre::uint32 numPresets = sizeof( c_presets ) / sizeof( c_presets[0] );
+
+            if( direction >= 0 )
+                mCurrentPreset = ( mCurrentPreset + 1 ) % numPresets;
+            else
+                mCurrentPreset = ( mCurrentPreset + numPresets - 1 ) % numPresets;
+        }
+
+        const Preset &preset = c_presets[mCurrentPreset];
+
+        mPresetName = preset.name;
+        mExposure = preset.exposure;
+        mMinAutoExposure = preset.minAutoExposure;
+        mMaxAutoExposure = preset.maxAutoExposure;
+        mBloomFullThreshold = preset.bloomThreshold;
+
+        HdrUtils::setSkyColour( preset.skyColour, 1.0f, mGraphicsSystem->getCompositorWorkspace() );
+        HdrUtils::setExposure( mExposure, mMinAutoExposure, mMaxAutoExposure );
+        HdrUtils::setBloomThreshold( std::max( mBloomFullThreshold - 2.0f, 0.0f ),
+                                     std::max( mBloomFullThreshold, 0.01f ) );
+        for( int i = 0; i < 3; ++i )
+        {
+            assert( dynamic_cast<Ogre::Light *>( mLightNodes[i]->getAttachedObject( 0 ) ) );
+            Ogre::Light *light = static_cast<Ogre::Light *>( mLightNodes[i]->getAttachedObject( 0 ) );
+            light->setPowerScale( preset.lightPower[i] );
+        }
+
+        Ogre::SceneManager* sceneManager = mGraphicsSystem->getSceneManager();  // NOLINT(clang-diagnostic-shadow)
+        sceneManager->setAmbientLight( preset.ambLowerHemisphere, preset.ambUpperHemisphere,
+                                       sceneManager->getAmbientLightHemisphereDir(),
+                                       preset.envmapScale );
+
+#ifdef OGRE_BUILD_COMPONENT_ATMOSPHERE
+        if( !mAtmosphere )
+        {
+            OGRE_ASSERT_HIGH( dynamic_cast<Ogre::Light *>( mLightNodes[0]->getAttachedObject( 0u ) ) );
+            mGraphicsSystem->createAtmosphere(
+                static_cast<Ogre::Light *>( mLightNodes[0]->getAttachedObject( 0u ) ) );
+            OGRE_ASSERT_HIGH( dynamic_cast<Ogre::AtmosphereNpr *>( sceneManager->getAtmosphere() ) );
+            mAtmosphere = static_cast<Ogre::AtmosphereNpr *>( sceneManager->getAtmosphere() );
+        }
+
+        Ogre::AtmosphereNpr::Preset atmoPreset;
+        atmoPreset.sunPower = preset.lightPower[0];
+        atmoPreset.skyPower = preset.skyColour.toVector3().collapseMax() * 2.0f;
+        atmoPreset.skyColour = preset.skyColour.toVector3() / atmoPreset.skyPower;
+        atmoPreset.linkedLightPower = preset.lightPower[0];
+        atmoPreset.envmapScale = preset.envmapScale;
+
+        // The colour we pass to Atmosphere is too greenish when displayed. Correct it a bit.
+        atmoPreset.skyColour *= Ogre::Vector3( 1.0f, 0.9f, 1.0f );
+
+        atmoPreset.linkedSceneAmbientUpperPower *= 50.0f;
+        atmoPreset.linkedSceneAmbientLowerPower *= 50.0f;
+        if( mCurrentPreset == 2u )
+        {
+            // Heavy overcast day
+            atmoPreset.densityCoeff = 0.25f;
+            atmoPreset.densityDiffusion = 0.25f;
+            atmoPreset.linkedSceneAmbientUpperPower *= 0.5f;
+            atmoPreset.fogDensity = 0.025f;
+        }
+        else if( mCurrentPreset == 3u || mCurrentPreset == 4u )
+        {
+            // Gibbous moon night series. Night always requires quite the parameter changes
+            atmoPreset.sunPower = 0.25f;
+            atmoPreset.skyPower = 0.07f;
+            atmoPreset.densityCoeff = 0.08f;
+            atmoPreset.linkedSceneAmbientUpperPower *= 0.0025f;
+            atmoPreset.linkedSceneAmbientLowerPower *= 0.0025f;
+        }
+        else if( mCurrentPreset == 5u )
+        {
+            atmoPreset.densityCoeff = 0.38f;
+            atmoPreset.linkedSceneAmbientUpperPower *= 0.5f;
+            atmoPreset.linkedSceneAmbientLowerPower *= 0.02f;
+        }
+        else
+        {
+            atmoPreset.linkedSceneAmbientUpperPower *= 8.0f;
+            atmoPreset.linkedSceneAmbientLowerPower *= 2.0f;
+        }
+        mAtmosphere->setPreset( atmoPreset );
+#endif
+    }
+    
     //-----------------------------------------------------------------------------------
     /*                                  Global initalizers                              */
 
     //-----------------------------------------------------------------------------------
-    void OgreNextImguiGameState::createScene01(void)
+    void OgreNextImGuiGameState::createScene01()
     {
         {
-            // HdrUtils::init(mGraphicsSystem->getRenderWindow()->getSampleDescription().getColourSamples());
+            HdrUtils::init(mGraphicsSystem->getRenderWindow()->getSampleDescription().getColourSamples());
 
             sceneManager = mGraphicsSystem->getSceneManager();
 
@@ -71,19 +286,22 @@ namespace Demo
                 sceneNode->setPosition(0, -1, 0);
                 sceneNode->attachObject(item);
 
-                // // Change the addressing mode of the roughness map to wrap via code.
-                // // Detail maps default to wrap, but the rest to clamp.
-                // assert(dynamic_cast<Ogre::HlmsPbsDatablock*>(item->getSubItem(0)->getDatablock()));
-                // Ogre::HlmsPbsDatablock* datablock =
-                //     static_cast<Ogre::HlmsPbsDatablock*>(item->getSubItem(0)->getDatablock());
-                // // Make a hard copy of the sampler block
-                // Ogre::HlmsSamplerblock samplerblock(*datablock->getSamplerblock(Ogre::PBSM_ROUGHNESS));
-                // samplerblock.mU = Ogre::TAM_WRAP;
-                // samplerblock.mV = Ogre::TAM_WRAP;
-                // samplerblock.mW = Ogre::TAM_WRAP;
-                // // Set the new samplerblock. The Hlms system will
-                // // automatically create the API block if necessary
-                // datablock->setSamplerblock(Ogre::PBSM_ROUGHNESS, samplerblock);
+                // Change the addressing mode of the roughness map to wrap via code.
+                // Detail maps default to wrap, but the rest to clamp.
+                if (false)
+                {
+                    assert( dynamic_cast<Ogre::HlmsPbsDatablock *>( item->getSubItem( 0 )->getDatablock() ) );
+                    Ogre::HlmsPbsDatablock *datablock =
+                        static_cast<Ogre::HlmsPbsDatablock *>( item->getSubItem( 0 )->getDatablock() );
+                    // Make a hard copy of the sampler block
+                    Ogre::HlmsSamplerblock samplerblock( *datablock->getSamplerblock( Ogre::PBSM_ROUGHNESS ) );
+                    samplerblock.mU = Ogre::TAM_WRAP;
+                    samplerblock.mV = Ogre::TAM_WRAP;
+                    samplerblock.mW = Ogre::TAM_WRAP;
+                    // Set the new samplerblock. The Hlms system will
+                    // automatically create the API block if necessary
+                    datablock->setSamplerblock( Ogre::PBSM_ROUGHNESS, samplerblock );
+                }
             }
 
             for (int i = 0; i < 4; ++i)
@@ -107,7 +325,7 @@ namespace Demo
 
                     item->setVisibilityFlags(0x000000001);
 
-                    const size_t idx = static_cast<size_t>(i * 4 + j);
+                    const size_t idx = static_cast<size_t>(i * 4 + j);  // NOLINT(bugprone-misplaced-widening-cast)
 
                     mSceneNode[idx] = sceneManager->getRootSceneNode(Ogre::SCENE_DYNAMIC)
                         ->createChildSceneNode(Ogre::SCENE_DYNAMIC);
@@ -122,8 +340,71 @@ namespace Demo
                 }
             }
 
+            if (false)
+            {
+                {//copied
+                    size_t numItems = 0;
+                    Ogre::HlmsManager *hlmsManager = mGraphicsSystem->getRoot()->getHlmsManager();
+            
+                    assert( dynamic_cast<Ogre::HlmsPbs *>( hlmsManager->getHlms( Ogre::HLMS_PBS ) ) );
+            
+                    Ogre::HlmsPbs *hlmsPbs =
+                        static_cast<Ogre::HlmsPbs *>( hlmsManager->getHlms( Ogre::HLMS_PBS ) );
+            
+                    const int numX = 8;
+                    const int numZ = 8;
+            
+                    const float armsLengthSphere = 1.0f;
+                    const float startX = ( numX - 1 ) / 2.0f;
+                    const float startZ = ( numZ - 1 ) / 2.0f;
+            
+                    Ogre::Root *root = mGraphicsSystem->getRoot();
+                    Ogre::TextureGpuManager *textureMgr = root->getRenderSystem()->getTextureGpuManager();
+            
+                    for( int x = 0; x < numX; ++x )
+                    {
+                        for( int z = 0; z < numZ; ++z )
+                        {
+                            Ogre::String datablockName = "Test" + Ogre::StringConverter::toString( numItems++ );
+                            Ogre::HlmsPbsDatablock *datablock = static_cast<Ogre::HlmsPbsDatablock *>(
+                                hlmsPbs->createDatablock( datablockName, datablockName, Ogre::HlmsMacroblock(),
+                                                          Ogre::HlmsBlendblock(), Ogre::HlmsParamVec() ) );
+            
+                            Ogre::TextureGpu *texture = textureMgr->createOrRetrieveTexture(
+                                "SaintPetersBasilica.dds", Ogre::GpuPageOutStrategy::Discard,
+                                Ogre::TextureFlags::PrefersLoadingFromFileAsSRGB, Ogre::TextureTypes::TypeCube,
+                                Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
+                                Ogre::TextureFilter::TypeGenerateDefaultMipmaps );
+            
+                            datablock->setTexture( Ogre::PBSM_REFLECTION, texture );
+                            datablock->setDiffuse( Ogre::Vector3( 0.0f, 1.0f, 0.0f ) );
+            
+                            datablock->setRoughness(
+                                std::max( 0.02f, float( x ) / std::max( 1.0f, (float)( numX - 1 ) ) ) );
+                            datablock->setFresnel(
+                                Ogre::Vector3( float( z ) / std::max( 1.0f, (float)( numZ - 1 ) ) ), false );
+            
+                            Ogre::Item *item = sceneManager->createItem(
+                                "Sphere1000.mesh", Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
+                                Ogre::SCENE_DYNAMIC );
+                            item->setDatablock( datablock );
+                            item->setVisibilityFlags( 0x000000002 );
+            
+                            Ogre::SceneNode *sceneNode = sceneManager->getRootSceneNode( Ogre::SCENE_DYNAMIC )
+                                                                     ->createChildSceneNode( Ogre::SCENE_DYNAMIC );
+                            sceneNode->setPosition(
+                                Ogre::Vector3( armsLengthSphere * Ogre::Real( x ) - startX, 1.0f,
+                                               armsLengthSphere * Ogre::Real( z ) - startZ ) );
+                            sceneNode->attachObject( item );
+                        }
+                    }
+                }//copied
+            }
+
             Ogre::SceneNode* mainRootNode = sceneManager->getRootSceneNode();
 
+
+            //Create light
             mainLight = sceneManager->createLight();
             Ogre::SceneNode* mainLightNode = mainRootNode->createChildSceneNode();
 
@@ -132,8 +413,8 @@ namespace Demo
             mainLight->setPowerScale(97.0f);
             mainLight->setType(Ogre::Light::LT_DIRECTIONAL);
             mainLight->setDirection(Ogre::Vector3(-1, -1, -1).normalisedCopy());
-            mainLight->setDirection( Ogre::Vector3( 0, -1, 0 ).normalisedCopy() );
-            mainLight->setDirection( Ogre::Vector3( 0, -1, -0.5 ).normalisedCopy() );
+            // mainLight->setDirection( Ogre::Vector3( 0, -1, 0 ).normalisedCopy() );
+            // mainLight->setDirection( Ogre::Vector3( 0, -1, -0.5 ).normalisedCopy() );
 
             mLightNodes[0] = mainLightNode;
 
@@ -150,7 +431,7 @@ namespace Demo
             mainLightNode->setPosition(-10.0f, 10.0f, 10.0f);
             mainLight->setDirection(Ogre::Vector3(1, -1, -1).normalisedCopy());
             mainLight->setAttenuationBasedOnRadius(10.0f, 0.01f);
-            //
+            
             mLightNodes[1] = mainLightNode;
             
             mainLight = sceneManager->createLight();
@@ -173,6 +454,7 @@ namespace Demo
             // mCameraController = new CameraController(mGraphicsSystem, false);
             
             mCameraController = new CEngine::CCameraController(mGraphicsSystem, false);
+            // switchPreset();
             
             // EditorStyleWindow = new CEngine::EditorWindow("Sample");
             CameraSettings = std::make_shared<CEngine::WCameraSettings>("Camera Settings" ,mCameraController);
@@ -234,13 +516,22 @@ namespace Demo
         TutorialGameState::createScene01();
     }
     //-----------------------------------------------------------------------------------
-    void OgreNextImguiGameState::destroyScene()
+    void OgreNextImGuiGameState::destroyScene()
     {
         ImguiManager::getSingleton().shutdown();
     }
     //-----------------------------------------------------------------------------------
-    void OgreNextImguiGameState::update(float timeSinceLast)
+    void OgreNextImGuiGameState::update(float timeSinceLast)
     {
+
+        if( mAnimateObjects )
+        {
+            for( int i = 0; i < 16; ++i )
+                mSceneNode[i]->yaw( Ogre::Radian( timeSinceLast * float( i ) * 0.125f ) );
+        }
+
+        TutorialGameState::update( timeSinceLast );
+        
         static bool tried = false;
         if (!tried)
         {
@@ -277,12 +568,37 @@ namespace Demo
         TutorialGameState::update(timeSinceLast);
     }
     //-----------------------------------------------------------------------------------
-    void OgreNextImguiGameState::generateDebugText(float timeSinceLast, Ogre::String& outText)
+    void OgreNextImGuiGameState::generateDebugText(float timeSinceLast, Ogre::String& outText)
     {
         TutorialGameState::generateDebugText(timeSinceLast, outText);
+
+        if( mDisplayHelpMode == 2 )
+        {
+            outText += "\nHold SHIFT to decrease values\n[SPACE] Preset: ";
+            outText += mPresetName;
+            outText += "\nF5 Exposure = ";
+            outText += Ogre::StringConverter::toString( mExposure );
+            outText += "\nF6 Min Auto Exposure = ";
+            outText += Ogre::StringConverter::toString( mMinAutoExposure );
+            outText += "\nF7 Max Auto Exposure = ";
+            outText += Ogre::StringConverter::toString( mMaxAutoExposure );
+            outText += "\nF8 Bloom Threshold = ";
+            outText += Ogre::StringConverter::toString( mBloomFullThreshold );
+        }
+        else if( mDisplayHelpMode == 1 )
+        {
+            Ogre::uint32 visibilityMask = mGraphicsSystem->getSceneManager()->getVisibilityMask();
+
+            outText += "\nPress F2 to toggle animation. ";
+            outText += mAnimateObjects ? "[On]" : "[Off]";
+            outText += "\nPress F3 to show/hide animated objects. ";
+            outText += ( visibilityMask & 0x000000001 ) ? "[On]" : "[Off]";
+            outText += "\nPress F4 to show/hide palette of spheres. ";
+            outText += ( visibilityMask & 0x000000002 ) ? "[On]" : "[Off]";
+        }
     }
     //-----------------------------------------------------------------------------------
-    void OgreNextImguiGameState::mouseMoved(const SDL_Event& arg)
+    void OgreNextImGuiGameState::mouseMoved(const SDL_Event& arg)
     {
         ImGuiIO& io = ImGui::GetIO();
         if (arg.type == SDL_MOUSEMOTION)
@@ -294,26 +610,26 @@ namespace Demo
         TutorialGameState::mouseMoved(arg);
     }
     //-----------------------------------------------------------------------------------
-    void OgreNextImguiGameState::mousePressed(const SDL_MouseButtonEvent& arg, Ogre::uint8 id)
+    void OgreNextImGuiGameState::mousePressed(const SDL_MouseButtonEvent& arg, Ogre::uint8 id)
     {
         ImGuiIO& io = ImGui::GetIO();
         io.MouseDown[arg.button == SDL_BUTTON_LEFT ? 0 : 1] = true;
         
     }
     //-----------------------------------------------------------------------------------
-    void OgreNextImguiGameState::mouseReleased(const SDL_MouseButtonEvent& arg, Ogre::uint8 id)
+    void OgreNextImGuiGameState::mouseReleased(const SDL_MouseButtonEvent& arg, Ogre::uint8 id)
     {
         ImGuiIO& io = ImGui::GetIO();
         io.MouseDown[arg.button == SDL_BUTTON_LEFT ? 0 : 1] = false;
         
     }
     //-----------------------------------------------------------------------------------
-    void OgreNextImguiGameState::textInput(const SDL_TextInputEvent& arg)
+    void OgreNextImGuiGameState::textInput(const SDL_TextInputEvent& arg)
     {
         ImGuiIO& io = ImGui::GetIO();
         io.AddInputCharactersUTF8(arg.text);
     }
-    void OgreNextImguiGameState::_keyEvent(const SDL_KeyboardEvent& arg, bool keyPressed)
+    void OgreNextImGuiGameState::_keyEvent(const SDL_KeyboardEvent& arg, bool keyPressed)
     {
         ImGuiIO& io = ImGui::GetIO();
 
@@ -329,14 +645,14 @@ namespace Demo
     }
 
     //-----------------------------------------------------------------------------------
-    void OgreNextImguiGameState::keyPressed(const SDL_KeyboardEvent& arg)
+    void OgreNextImGuiGameState::keyPressed(const SDL_KeyboardEvent& arg)
     {
         _keyEvent(arg, true);
 
         TutorialGameState::keyPressed(arg);
     }
     //-----------------------------------------------------------------------------------
-    void OgreNextImguiGameState::keyReleased(const SDL_KeyboardEvent& arg)
+    void OgreNextImGuiGameState::keyReleased(const SDL_KeyboardEvent& arg)
     {
         _keyEvent(arg, false);
 
@@ -344,29 +660,12 @@ namespace Demo
     }
     //-----------------------------------------------------------------------------------
 
-    void OgreNextImguiGameState::LightSetting()
+    void OgreNextImGuiGameState::LightSetting()
     {
         //global illumination?
         
         ImGui::Begin("Light Settings");
-        ImGuiStyle& style = ImGui::GetStyle();
         
-        // if (ImGui::IsWindowHovered())
-        // {
-        //     style.Colors[ImGuiCol_WindowBg] = ImVec4(0.2f, 0.3f, 0.6f, 0.5f);
-        //     style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.39f);
-        //     style.Colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
-        //     style.Colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
-        //     style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-        // }
-        // else
-        // {
-        //     style.Colors[ImGuiCol_WindowBg] = ImVec4(0.38f, 0.36f, 0.36f, 0.5f);
-        //     style.Colors[ImGuiCol_Border] = ImVec4(0.38f, 0.38f, 0.38f, 0.1f);
-        //     style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.14f, 014.f, 0.14f, 0.1f);
-        //     style.Colors[ImGuiCol_FrameBg] = ImVec4(0.f, 0.f, 0.f, 0.1f);
-        // }
-
         ImGui::Text("Global Ambient Setting");
         ImGui::Text("Color");
         static float upperHemisphereColor[4] = { 0.3f, 0.5f, 0.7f, 0.7f };
@@ -390,11 +689,9 @@ namespace Demo
         
     }
 
-    inline void OgreNextImguiGameState::SetImGuiStyle()
+    inline void OgreNextImGuiGameState::SetImGuiStyle()
     {
-        /*
-         * Style
-         */
+        /* Style */
         
         ImGuiStyle& style = ImGui::GetStyle();
         //Rounding
