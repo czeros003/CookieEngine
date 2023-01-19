@@ -44,9 +44,7 @@ namespace Demo
         Ogre::SceneManager* sceneManager;
         
     protected:
-        
-
-        
+    
     public:
         OgreNextImGuiGameState(const Ogre::String& helpDescription);
         void createScene01() override;
@@ -68,6 +66,7 @@ namespace Demo
         CEngine::EditorWindow*  EditorStyleWindow;
         std::shared_ptr<CEngine::WCameraSettings> CameraSettings;
         std::shared_ptr<CEngine::WMainMenuBar> MainMenuBar;
+        
     };
 
 }

@@ -342,7 +342,7 @@ namespace Demo
 
             if (true)
             {
-                {//copied
+                {
                     size_t numItems = 0;
                     Ogre::HlmsManager *hlmsManager = mGraphicsSystem->getRoot()->getHlmsManager();
             
@@ -398,7 +398,7 @@ namespace Demo
                             sceneNode->attachObject( item );
                         }
                     }
-                }//copied
+                }
             }
 
             Ogre::SceneNode* mainRootNode = sceneManager->getRootSceneNode();
@@ -454,7 +454,7 @@ namespace Demo
             // mCameraController = new CameraController(mGraphicsSystem, false);
             
             mCameraController = new CEngine::CCameraController(mGraphicsSystem, false);
-            switchPreset();
+            switchPreset(3);
             
             // EditorStyleWindow = new CEngine::EditorWindow("Sample");
             CameraSettings = std::make_shared<CEngine::WCameraSettings>("Camera Settings" ,mCameraController);
@@ -462,7 +462,7 @@ namespace Demo
         }
 
         //Register imgui for rendering
-        // SetImGuiStyle();
+        
         Ogre::Root::getSingleton().addFrameListener(new ImguiFrameListener());
         //initialise with your target workspace.
         ImguiManager::getSingleton().init(mGraphicsSystem->getCompositorWorkspace());
@@ -662,9 +662,7 @@ namespace Demo
 
     void OgreNextImGuiGameState::LightSetting()
     {
-        //global illumination?
-        
-        ImGui::Begin("Light Settings");
+        ImGui::Begin("Global Light Settings");
         
         ImGui::Text("Global Ambient Setting");
         ImGui::Text("Color");
@@ -685,6 +683,37 @@ namespace Demo
             * 0.065f * 0.75f * 60.0f,
             -vec3f);
 
+
+        static int currentItem = 1;
+        const char* lightPresets[6] = {"Bright, sunny day", "Average, slightly hazy day", "Heavy overcast day", "Gibbous moon night", "Gibbous moon night w/ powerful spotlights", "JJ Abrams style"};
+        const char* combo_preview_value = lightPresets[currentItem];
+        // if (ImGui::ListBox("Preset", &currentItem, lightPresets, IM_ARRAYSIZE(lightPresets), 1))
+        // {
+        //     switchPreset(currentItem);
+        //     ImGui::EndListBox();
+        // }
+
+        if (ImGui::BeginCombo("Preset", combo_preview_value, 0))
+        {
+            for (int n = 0; n < IM_ARRAYSIZE(lightPresets); n++)
+            {
+                const bool is_selected = (currentItem == n);
+                if (ImGui::Selectable(lightPresets[n], is_selected))
+                {
+                    currentItem = n;
+                    switchPreset(currentItem);
+                }
+
+                // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                if (is_selected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                    // switchPreset(currentItem);
+                }
+            }
+            ImGui::EndCombo();
+        }
+        
         ImGui::End();
         
     }

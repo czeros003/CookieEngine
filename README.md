@@ -18,9 +18,9 @@ https://ogrecave.github.io/ogre-next/api/latest/_setting_up_ogre_windows.html#Bu
 
 Include SDL2 build library to Release folder in bin.
 To run DirectX add amd_ags_x64.dll
-Add Ogre Atmosphere.dll to bin\release
+Add Ogre Atmosphere.dll, resource.cfg to bin\release
 
-Clear %AppData%/CookiEngine to clear run config
+Clear %AppData%/CookiEngine to clear run config witf resource.cfg
 
 ### ImGui
 
