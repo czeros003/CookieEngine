@@ -15,12 +15,13 @@
 #include "Engine/EditorWindows/WMainMenuBar.h"
 
 #include "Engine/GameState/CookieBaseState.h"
+#include "Engine/Object/Actor/CActor.h"
 
 namespace Demo
 {
     class OgreNextImGuiGameState : public CEngine::TutorialGameState, public Ogre::FrameListener
     {
-        Ogre::SceneNode* mSceneNode[16]{};
+        Ogre::SceneNode* mSceneNode[17]{}; //before 16
         
         Ogre::SceneNode* mLightNodes[3]{};
 
@@ -65,6 +66,7 @@ namespace Demo
         void LightSetting();
         std::shared_ptr<CEngine::WCameraSettings> CameraSettings;
         std::shared_ptr<CEngine::WMainMenuBar> MainMenuBar;
+        std::shared_ptr<CEngine::CActor> testCActor;
         const char* lightPresets[6];
 
         SdlInputHandler* inputHandler;

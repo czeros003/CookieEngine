@@ -332,7 +332,7 @@ namespace Demo
 
                     item->setVisibilityFlags(0x000000001);
 
-                    const size_t idx = static_cast<size_t>(i * 4 + j);  // NOLINT(bugprone-misplaced-widening-cast)
+                    const size_t idx = static_cast<size_t>(i * 4 + j);  
 
                     mSceneNode[idx] = sceneManager->getRootSceneNode(Ogre::SCENE_DYNAMIC)
                         ->createChildSceneNode(Ogre::SCENE_DYNAMIC);
@@ -465,6 +465,9 @@ namespace Demo
             // EditorStyleWindow = new CEngine::EditorWindow("Sample");
             CameraSettings = std::make_shared<CEngine::WCameraSettings>("Camera Settings" ,mCameraController);
             MainMenuBar = std::make_shared<CEngine::WMainMenuBar>("Main Menu Bar");
+            
+            testCActor = std::make_shared<CEngine::CActor>("Test Actor", "Sphere1000.mesh", "Marble", mSceneNode[16]);
+            
         }
 
         //Register imgui for rendering
@@ -539,25 +542,15 @@ namespace Demo
             inputHandler->setMouseRelative(false);
         }
         
-        // mAnimateObjects = MainMenuBar->bRotate;
+        mAnimateObjects = MainMenuBar->bRotate;
         if( mAnimateObjects )
         {
             for( int i = 0; i < 16; ++i )
                 mSceneNode[i]->yaw( Ogre::Radian( timeSinceLast * float( i ) * 0.125f ) );
         }
-
-        //Calculate the frame delta time using SDL's helper functions.
-        // static Uint64 g_Time = 0;
-        // static Uint64 frequency = SDL_GetPerformanceFrequency();
-        // Uint64 current_time = SDL_GetPerformanceCounter();
-        // float deltaTime = g_Time > 0 ? (float)((double)(current_time - g_Time) / frequency) : (float)(1.0f / 60.0f);
-        // g_Time = current_time;
         
         ImguiManager::getSingletonPtr()->newFrame(timeSinceLast);
-
-        //Begin issuing imgui draw calls.
-        //Don't do this in the frameRenderingQueued callback,
-        //as if any of your logic alters Ogre state you will break things.
+        
         bool show_demo_window = true;
         ImGui::ShowDemoWindow(&show_demo_window);
 
@@ -698,6 +691,11 @@ namespace Demo
                 -vec3f); // this is slowing down update
         }
         ImGui::Separator();
+
+        if (ImGui::Button("Create New Acotr"))
+        {
+            testCActor->CreateActor(sceneManager);
+        }
         
         ImGui::End();
         

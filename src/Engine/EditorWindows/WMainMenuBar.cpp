@@ -121,6 +121,7 @@ namespace CEngine
 
             if (ImGui::BeginMenu("Tools"))
             {
+                //todo create adding docking option, link other editor ui settings here 
                 ImGui::EndMenu();
             }
             
