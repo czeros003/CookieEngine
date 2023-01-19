@@ -4,19 +4,19 @@
 
 namespace CEngine
 {
-    WMainMenuBar::WMainMenuBar(const char* windowName, bool bMoveCameraWhileHovered)
-        : EditorWindow(windowName, bMoveCameraWhileHovered), windowName(windowName)
+    WMainMenuBar::WMainMenuBar(const char* windowName, bool bRotate)
+        : EditorWindow(windowName, bRotate), bRotate(bRotate), windowName(windowName)
     {
         bExitPopUp = false;
     }
 
     WMainMenuBar::WMainMenuBar(const char* windowName)
-        : EditorWindow(windowName), windowName(windowName)
+        : EditorWindow(windowName), bRotate(true), windowName(windowName)
     {
         bExitPopUp = false;
     }
 
-    WMainMenuBar::~WMainMenuBar()
+    WMainMenuBar::~WMainMenuBar() 
     {
         // delete this;
     }
@@ -118,6 +118,20 @@ namespace CEngine
                 if (ImGui::MenuItem("Paste", "CTRL+V")) {}
                 ImGui::EndMenu();
             }
+
+            if (ImGui::BeginMenu("Tools"))
+            {
+                ImGui::EndMenu();
+            }
+            
+            
+            if (ImGui::BeginMenu("Options"))
+            {
+                ImGui::Checkbox("Rotate object",&bRotate);
+            
+                ImGui::EndMenu();
+            }
+            
             ImGui::EndMainMenuBar();
 
             //Exit pop up logic

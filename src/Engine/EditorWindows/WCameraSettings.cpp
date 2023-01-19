@@ -36,6 +36,7 @@ namespace CEngine
         
         ImGui::Begin("Camera Settings");
         ImGui::Text("Basic Main Viewport Camera Settings.");
+        ImGui::Separator();
         ImGui::Checkbox("Enable Camera Movement While In UI", &bMoveCameraWhileHovered);
 
         // mCameraController->bMovableCamera = bMoveCameraWhileHovered || !ImGui::IsWindowHovered();
@@ -48,6 +49,7 @@ namespace CEngine
         ImGui::Text("Camera Boost");
         ImGui::SameLine();
         ImGui::SliderFloat("##boost", &mCameraController->mCameraSpeedBoost, 5.0f, 50.0f, "%1.0f");
+        ImGui::Separator();
 
         ImGui::End();
     }

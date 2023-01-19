@@ -19,7 +19,6 @@
 #include "OgreRoot.h"
 
 #include "SdlInputHandler.h"
-#include "Engine/EditorWindows/EditorWindow.h"
 #include "Engine/EditorWindows/WCameraSettings.h"
 #include "Utils/HdrUtils.h"
 
@@ -45,18 +44,24 @@ namespace Demo
     OgreNextImGuiGameState::OgreNextImGuiGameState(const Ogre::String& helpDescription) :
         TutorialGameState(helpDescription),
 #ifdef OGRE_BUILD_COMPONENT_ATMOSPHERE
-        mAtmosphere( 0 ),
+        mAtmosphere(0),
 #endif
         mAnimateObjects(true),
-        mCurrentPreset( std::numeric_limits<Ogre::uint32>::max() ),
-        mExposure( 0.0f ),
-        mMinAutoExposure( -2.5f ),
-        mMaxAutoExposure( 2.5f ),
-        mBloomFullThreshold( 5.0f ),
+        mCurrentPreset(std::numeric_limits<Ogre::uint32>::max()),
+        mExposure(0.0f),
+        mMinAutoExposure(-2.5f),
+        mMaxAutoExposure(2.5f),
+        mBloomFullThreshold(5.0f),
         mainLight(nullptr),
         sceneManager(nullptr),
-        EditorStyleWindow(nullptr)
+        lightPresets{
+            "Bright, sunny day", "Average, slightly hazy day", "Heavy overcast day", "Gibbous moon night",
+            "Gibbous moon night w/ powerful spotlights", "JJ Abrams style"
+        }, inputHandler(nullptr)
     {
+        mDisplayHelpMode = 2;
+        mNumDisplayHelpModes = 3;
+        memset(mSceneNode, 0, sizeof(mSceneNode));
     }
 
     void OgreNextImGuiGameState::switchPreset(int direction)
@@ -169,12 +174,14 @@ namespace Demo
         };
 
         {
-            const Ogre::uint32 numPresets = sizeof( c_presets ) / sizeof( c_presets[0] );
-
-            if( direction >= 0 )
-                mCurrentPreset = ( mCurrentPreset + 1 ) % numPresets;
-            else
-                mCurrentPreset = ( mCurrentPreset + numPresets - 1 ) % numPresets;
+            // const Ogre::uint32 numPresets = sizeof( c_presets ) / sizeof( c_presets[0] );
+            //
+            // if( direction >= 0 )
+            //     mCurrentPreset = ( mCurrentPreset + 1 ) % numPresets;
+            // else
+            //     mCurrentPreset = ( mCurrentPreset + numPresets - 1 ) % numPresets;
+            mCurrentPreset = direction;
+            
         }
 
         const Preset &preset = c_presets[mCurrentPreset];
@@ -454,7 +461,6 @@ namespace Demo
             // mCameraController = new CameraController(mGraphicsSystem, false);
             
             mCameraController = new CEngine::CCameraController(mGraphicsSystem, false);
-            switchPreset(3);
             
             // EditorStyleWindow = new CEngine::EditorWindow("Sample");
             CameraSettings = std::make_shared<CEngine::WCameraSettings>("Camera Settings" ,mCameraController);
@@ -512,7 +518,8 @@ namespace Demo
             io.KeyMap[ImGuiKey_PageUp] = SDL_SCANCODE_PAGEUP;
 
         }
-
+        
+        switchPreset();
         TutorialGameState::createScene01();
     }
     //-----------------------------------------------------------------------------------
@@ -523,33 +530,30 @@ namespace Demo
     //-----------------------------------------------------------------------------------
     void OgreNextImGuiGameState::update(float timeSinceLast)
     {
+        TutorialGameState::update( timeSinceLast );
 
+        {
+            inputHandler = mGraphicsSystem->getInputHandler();
+            inputHandler->setGrabMousePointer(false);
+            inputHandler->setMouseVisible(true);
+            inputHandler->setMouseRelative(false);
+        }
+        
+        // mAnimateObjects = MainMenuBar->bRotate;
         if( mAnimateObjects )
         {
             for( int i = 0; i < 16; ++i )
                 mSceneNode[i]->yaw( Ogre::Radian( timeSinceLast * float( i ) * 0.125f ) );
         }
 
-        TutorialGameState::update( timeSinceLast );
-        
-        static bool tried = false;
-        if (!tried)
-        {
-            SdlInputHandler* inputHandler = mGraphicsSystem->getInputHandler();
-            inputHandler->setGrabMousePointer(false);
-            inputHandler->setMouseVisible(true);
-            inputHandler->setMouseRelative(false);
-            tried = true;
-        }
-
         //Calculate the frame delta time using SDL's helper functions.
-        static Uint64 g_Time = 0;
-        static Uint64 frequency = SDL_GetPerformanceFrequency();
-        Uint64 current_time = SDL_GetPerformanceCounter();
-        float deltaTime = g_Time > 0 ? (float)((double)(current_time - g_Time) / frequency) : (float)(1.0f / 60.0f);
-        g_Time = current_time;
+        // static Uint64 g_Time = 0;
+        // static Uint64 frequency = SDL_GetPerformanceFrequency();
+        // Uint64 current_time = SDL_GetPerformanceCounter();
+        // float deltaTime = g_Time > 0 ? (float)((double)(current_time - g_Time) / frequency) : (float)(1.0f / 60.0f);
+        // g_Time = current_time;
         
-        ImguiManager::getSingletonPtr()->newFrame(deltaTime);
+        ImguiManager::getSingletonPtr()->newFrame(timeSinceLast);
 
         //Begin issuing imgui draw calls.
         //Don't do this in the frameRenderingQueued callback,
@@ -563,9 +567,9 @@ namespace Demo
         ImGui::ShowStyleEditor();
         ImGui::ShowDebugLogWindow();
         MainMenuBar->startUiRender();
-        mCameraController->bMovableCamera = CameraSettings->bMoveCameraWhileHovered || (!ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered());
+        // mCameraController->bMovableCamera = CameraSettings->bMoveCameraWhileHovered || (!ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered());
         
-        TutorialGameState::update(timeSinceLast);
+        // TutorialGameState::update(timeSinceLast);
     }
     //-----------------------------------------------------------------------------------
     void OgreNextImGuiGameState::generateDebugText(float timeSinceLast, Ogre::String& outText)
@@ -664,55 +668,36 @@ namespace Demo
     {
         ImGui::Begin("Global Light Settings");
         
-        ImGui::Text("Global Ambient Setting");
+        if (ImGui::Combo("Light Preset", &mCurrentPreset, lightPresets, IM_ARRAYSIZE(lightPresets)))
+        {
+            switchPreset(mCurrentPreset);
+        }
+        
+        ImGui::Separator();
+        ImGui::Text("Ambient Setting");
+        ImGui::Separator();
+        
+        ImGui::Spacing();
+        ImGui::Spacing();
         ImGui::Text("Color");
         static float upperHemisphereColor[4] = { 0.3f, 0.5f, 0.7f, 0.7f };
         static float lowerHemisphereColor[4] = { 0.6f, 0.45f, 0.3f, 0.5f };
-
         ImGui::ColorEdit4("Upper Color", upperHemisphereColor);
         ImGui::ColorEdit4("Lower Color", lowerHemisphereColor);
-
+        ImGui::Separator();
         ImGui::Text("Direction");
         static float lightDirectionf[3] = { mainLight->getDirection().x, mainLight->getDirection().y, mainLight->getDirection().z};
-        ImGui::SliderFloat3("Light Direction", lightDirectionf, -360.0f, 360.0f, "%1.0f");
-        Ogre::Vector3 vec3f = { lightDirectionf[0], lightDirectionf[1], lightDirectionf[2] };
-
-        sceneManager->setAmbientLight(Ogre::ColourValue(upperHemisphereColor[0], upperHemisphereColor[1], upperHemisphereColor[2], upperHemisphereColor[3])
-            * 0.1f * 0.75f * 60.0f,
-            Ogre::ColourValue(lowerHemisphereColor[0], lowerHemisphereColor[1], lowerHemisphereColor[2], lowerHemisphereColor[3])
-            * 0.065f * 0.75f * 60.0f,
-            -vec3f);
-
-
-        static int currentItem = 1;
-        const char* lightPresets[6] = {"Bright, sunny day", "Average, slightly hazy day", "Heavy overcast day", "Gibbous moon night", "Gibbous moon night w/ powerful spotlights", "JJ Abrams style"};
-        const char* combo_preview_value = lightPresets[currentItem];
-        // if (ImGui::ListBox("Preset", &currentItem, lightPresets, IM_ARRAYSIZE(lightPresets), 1))
-        // {
-        //     switchPreset(currentItem);
-        //     ImGui::EndListBox();
-        // }
-
-        if (ImGui::BeginCombo("Preset", combo_preview_value, 0))
+        if(ImGui::SliderFloat3("Light Direction", lightDirectionf, -360.0f, 360.0f, "%1.0f"))
         {
-            for (int n = 0; n < IM_ARRAYSIZE(lightPresets); n++)
-            {
-                const bool is_selected = (currentItem == n);
-                if (ImGui::Selectable(lightPresets[n], is_selected))
-                {
-                    currentItem = n;
-                    switchPreset(currentItem);
-                }
-
-                // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                if (is_selected)
-                {
-                    ImGui::SetItemDefaultFocus();
-                    // switchPreset(currentItem);
-                }
-            }
-            ImGui::EndCombo();
+            Ogre::Vector3 vec3f = { lightDirectionf[0], lightDirectionf[1], lightDirectionf[2] };
+            
+            sceneManager->setAmbientLight(Ogre::ColourValue(upperHemisphereColor[0], upperHemisphereColor[1], upperHemisphereColor[2], upperHemisphereColor[3])
+                * 0.1f * 0.75f * 60.0f,
+                Ogre::ColourValue(lowerHemisphereColor[0], lowerHemisphereColor[1], lowerHemisphereColor[2], lowerHemisphereColor[3])
+                * 0.065f * 0.75f * 60.0f,
+                -vec3f); // this is slowing down update
         }
+        ImGui::Separator();
         
         ImGui::End();
         

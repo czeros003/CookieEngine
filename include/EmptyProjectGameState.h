@@ -29,7 +29,7 @@ namespace Demo
 #endif
         //manipulate globals
         bool mAnimateObjects;
-        Ogre::uint32 mCurrentPreset;
+        int mCurrentPreset;
         Ogre::String mPresetName;
         float mExposure;
         float mMinAutoExposure;
@@ -63,9 +63,11 @@ namespace Demo
         
         static void SetImGuiStyle();
         void LightSetting();
-        CEngine::EditorWindow*  EditorStyleWindow;
         std::shared_ptr<CEngine::WCameraSettings> CameraSettings;
         std::shared_ptr<CEngine::WMainMenuBar> MainMenuBar;
+        const char* lightPresets[6];
+
+        SdlInputHandler* inputHandler;
         
     };
 
