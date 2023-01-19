@@ -69,28 +69,30 @@ namespace Demo
             const Ogre::RenderSystemCapabilities *caps = renderSystem->getCapabilities();
             //add
 
-            Ogre::String workspaceName("CookieEngineWorkspace");
-            if (!compositorManager->hasWorkspaceDefinition(workspaceName)) {
-                compositorManager->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue(0.2f, 0.4f, 0.6f, 1.f), Ogre::IdString());
-            }
+            Ogre::String workspaceName("HdrSmaaWorkspace");
+            // if (!compositorManager->hasWorkspaceDefinition(workspaceName)) {
+            //     compositorManager->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue(0.2f, 0.4f, 0.6f, 1.f), Ogre::IdString());
+            // }
             
-            // if( mRenderWindow->isMultisample() &&
-            //     caps->hasCapability( Ogre::RSC_EXPLICIT_FSAA_RESOLVE ) )
-            //         workspaceName = "HdrWorkspaceMsaa";
+            if( mRenderWindow->isMultisample() &&
+                caps->hasCapability( Ogre::RSC_EXPLICIT_FSAA_RESOLVE ) )
+                    workspaceName = "HdrWorkspaceMsaa";
 
             return compositorManager->addWorkspace( mSceneManager, mRenderWindow->getTexture(), mCamera, workspaceName, true );
         }
 
         void registerHlms() override
         {
+            Ogre::String resourcePath = "";
+            
             Ogre::ConfigFile cf;
-            cf.load(mResourcePath + "resources2.cfg");
+            cf.load(resourcePath + "resources2.cfg");
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE || OGRE_PLATFORM == OGRE_PLATFORM_APPLE_IOS
             Ogre::String rootHlmsFolder = Ogre::macBundlePath() + '/' +
                 cf.getSetting("DoNotUseAsResource", "Hlms", "");
 #else
-            Ogre::String rootHlmsFolder = mResourcePath + cf.getSetting("DoNotUseAsResource", "Hlms", "");
+            Ogre::String rootHlmsFolder = resourcePath + cf.getSetting("DoNotUseAsResource", "Hlms", "");
 #endif
 
             if (rootHlmsFolder.empty())
@@ -198,7 +200,7 @@ namespace Demo
             // compositorManager->setCompositorPassProvider( compoProvider );
 
             GraphicsSystem::setupResources();
-
+            
             Ogre::ConfigFile cf;
             cf.load(mResourcePath + "resources2.cfg");
             // std::cout << mResourcePath << "path xd";
@@ -243,7 +245,7 @@ namespace Demo
             //This is changed after that setup.
             mResourcePath = Ogre::macBundlePath() + "/Contents/Resources/";
 #else
-            mResourcePath = "../Data/";
+            mResourcePath = "C:/Inzynierka/Dependencies/Ogre/build/bin/release/";
 #endif
             mAlwaysAskForConfig = false;
 

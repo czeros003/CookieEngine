@@ -288,7 +288,7 @@ namespace Demo
 
                 // Change the addressing mode of the roughness map to wrap via code.
                 // Detail maps default to wrap, but the rest to clamp.
-                if (false)
+                if (true)
                 {
                     assert( dynamic_cast<Ogre::HlmsPbsDatablock *>( item->getSubItem( 0 )->getDatablock() ) );
                     Ogre::HlmsPbsDatablock *datablock =
@@ -340,7 +340,7 @@ namespace Demo
                 }
             }
 
-            if (false)
+            if (true)
             {
                 {//copied
                     size_t numItems = 0;
@@ -454,7 +454,7 @@ namespace Demo
             // mCameraController = new CameraController(mGraphicsSystem, false);
             
             mCameraController = new CEngine::CCameraController(mGraphicsSystem, false);
-            // switchPreset();
+            switchPreset();
             
             // EditorStyleWindow = new CEngine::EditorWindow("Sample");
             CameraSettings = std::make_shared<CEngine::WCameraSettings>("Camera Settings" ,mCameraController);
