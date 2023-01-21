@@ -9,7 +9,7 @@ namespace CEngine
     class CObject
     {
     public:
-        explicit CObject(Ogre::String name);
+        explicit CObject(Ogre::String objectName);
         
         Ogre::String objectName;
     private:

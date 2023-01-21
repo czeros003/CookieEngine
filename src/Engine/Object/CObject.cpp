@@ -2,7 +2,8 @@
 
 namespace CEngine
 {
-    CObject::CObject(Ogre::String name) : objectName(std::move(name))
+    CObject::CObject(Ogre::String objectName) : objectName(objectName)
     {
     }
+    
 }

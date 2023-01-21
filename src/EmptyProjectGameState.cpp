@@ -465,8 +465,9 @@ namespace Demo
             // EditorStyleWindow = new CEngine::EditorWindow("Sample");
             CameraSettings = std::make_shared<CEngine::WCameraSettings>("Camera Settings" ,mCameraController);
             MainMenuBar = std::make_shared<CEngine::WMainMenuBar>("Main Menu Bar");
+            ActorsWindowManager = std::make_shared<CEngine::WActorWindow>("Actor Label", mSceneNode[16], sceneManager);
             
-            testCActor = std::make_shared<CEngine::CActor>("Test Actor", "Sphere1000.mesh", "Marble", mSceneNode[16]);
+            // testCActor = std::make_shared<CEngine::CActor>("Test Actor", "Sphere1000.mesh", "Marble", mSceneNode[16]);
             
         }
 
@@ -560,6 +561,7 @@ namespace Demo
         ImGui::ShowStyleEditor();
         ImGui::ShowDebugLogWindow();
         MainMenuBar->startUiRender();
+        ActorsWindowManager->startUiRender();
         // mCameraController->bMovableCamera = CameraSettings->bMoveCameraWhileHovered || (!ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered());
         
         // TutorialGameState::update(timeSinceLast);
@@ -692,8 +694,9 @@ namespace Demo
         }
         ImGui::Separator();
 
-        if (ImGui::Button("Create New Acotr"))
+        if (ImGui::Button("Create New Actor"))
         {
+            testCActor = std::make_shared<CEngine::CActor>("Test Actor", "Sphere1000.mesh", "Marble", mSceneNode[16]);
             testCActor->CreateActor(sceneManager);
         }
         

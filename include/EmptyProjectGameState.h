@@ -11,6 +11,7 @@
 #include "GraphicsSystem.h"
 #include "OgrePrerequisites.h"
 #include "Engine/EditorWindows/EditorWindow.h"
+#include "Engine/EditorWindows/WActorWindow.h"
 #include "Engine/EditorWindows/WCameraSettings.h"
 #include "Engine/EditorWindows/WMainMenuBar.h"
 
@@ -66,6 +67,8 @@ namespace Demo
         void LightSetting();
         std::shared_ptr<CEngine::WCameraSettings> CameraSettings;
         std::shared_ptr<CEngine::WMainMenuBar> MainMenuBar;
+        std::shared_ptr<CEngine::WActorWindow> ActorsWindowManager;
+        
         std::shared_ptr<CEngine::CActor> testCActor;
         const char* lightPresets[6];
 

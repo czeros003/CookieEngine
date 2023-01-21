@@ -5,10 +5,6 @@
 
 namespace CEngine
 {
-    CActor::CActor(const Ogre::String& objectName): CObject(objectName), mSceneNode(nullptr)
-    {
-    }
-
     CActor::CActor(const Ogre::String& name, const Ogre::String& mesh_name, const Ogre::String& texture_name, Ogre::SceneNode* m_scene_node)
         : CObject(name),
           meshName(mesh_name),

@@ -128,7 +128,7 @@ namespace CEngine
             
             if (ImGui::BeginMenu("Options"))
             {
-                ImGui::Checkbox("Rotate object",&bRotate);
+                ImGui::Checkbox("Rotate objects",&bRotate);
             
                 ImGui::EndMenu();
             }

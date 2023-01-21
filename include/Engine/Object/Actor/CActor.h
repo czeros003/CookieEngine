@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Engine/Object/CObject.h"
-
+#include <OgreSceneManager.h>
 
 namespace CEngine
 {
