@@ -18,8 +18,9 @@ namespace CEngine
         void SetPosition(float X, float Y, float Z);
         void SetScale(float X, float Y, float Z);
         void SetRotation(float X, float Y, float Z);
-        
-    
+
+
+        Ogre::String name;
     private:
         Ogre::String meshName;
         Ogre::String textureName;

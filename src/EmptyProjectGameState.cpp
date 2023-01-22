@@ -520,6 +520,7 @@ namespace Demo
             io.KeyMap[ImGuiKey_LeftShift] = SDL_SCANCODE_LSHIFT; //boost
             io.KeyMap[ImGuiKey_PageDown] = SDL_SCANCODE_PAGEDOWN;
             io.KeyMap[ImGuiKey_PageUp] = SDL_SCANCODE_PAGEUP;
+            io.KeyMap[ImGuiKey_MouseWheelX] = SDL_MOUSEWHEEL_NORMAL;
 
         }
         

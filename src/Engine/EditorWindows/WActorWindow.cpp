@@ -17,11 +17,27 @@ namespace CEngine
         EditorWindow::startUiRender();
 
         ImGui::Begin(windowName);
+        
+        if (ImGui::BeginListBox("Actors list"))
+        {
+            for (int n = 0; n < actors_map.size(); n++)
+            {
+                const bool is_selected = (iterator == n);
+                if (ImGui::Selectable(actors_map.at(n)->name.c_str(), is_selected))
+                    iterator = n;
+
+                // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndListBox();
+        }
+
+        
         if (ImGui::Button("+ Add Actor"))
         {
             bPopUpAdd = true;
         }
-        
         ImGui::End();
 
         if (bPopUpAdd)
@@ -36,23 +52,17 @@ namespace CEngine
             ImGui::Text("Actor creator");
             ImGui::Spacing();
             
-            static char buf1[32];
-            static char buf2[32];
-            static char buf3[32];
-            ImGui::InputText("Name", buf1, IM_ARRAYSIZE(buf1));
-            ImGui::Text(buf1);
-            ImGui::InputText("Mesh", buf2, IM_ARRAYSIZE(buf2));
-            ImGui::InputText("Material", buf3, IM_ARRAYSIZE(buf3));
+            static char bufName[32];
+            static char bufMeshName[32];
+            static char bufTextureName[32];
+            ImGui::InputText("Name", bufName, IM_ARRAYSIZE(bufName));
+            ImGui::InputText("Mesh", bufMeshName, IM_ARRAYSIZE(bufMeshName));
+            ImGui::InputText("Material", bufTextureName, IM_ARRAYSIZE(bufTextureName));
 
             if (ImGui::Button("Create"))
             {
-                actors_map.insert({iterator+=iterator + 1, std::make_shared<CActor>("Test Actor", "Sphere1000.mesh", "Marble", mSceneNode)});
-                actors_map.at(iterator)->CreateActor(sceneManager);
-                
-                // for (auto actor : actors_vec)
-                // {
-                //     actor->CreateActor();
-                // }
+                actors_map.insert({actors_map.size(), std::make_shared<CActor>(bufName, bufMeshName, bufTextureName, mSceneNode)});
+                actors_map.at(actors_map.size()-1)->CreateActor(sceneManager);
                 
                 ImGui::CloseCurrentPopup();
             }
