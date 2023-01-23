@@ -21,9 +21,9 @@ namespace CEngine
 
 
         Ogre::String name;
-    private:
         Ogre::String meshName;
         Ogre::String textureName;
+    private:
         Ogre::SceneNode* mSceneNode;
         // int sceneIndex;
     

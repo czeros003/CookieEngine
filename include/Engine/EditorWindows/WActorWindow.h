@@ -36,6 +36,10 @@ namespace CEngine
 
         std::map<int, std::shared_ptr<CActor>> actors_map;
         std::vector<std::shared_ptr<CActor>> actors_vec;
+
+        float locations[3];
+        float rotations[3];
+        float scales[3];
         
     };
 }
