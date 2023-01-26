@@ -670,12 +670,6 @@ namespace Demo
                 -vec3f); // this is slowing down update
         }
         ImGui::Separator();
-
-        if (ImGui::Button("Create New Actor"))
-        {
-            testCActor = std::make_shared<CEngine::CActor>("Test Actor", "Sphere1000.mesh", "Marble", mSceneNode[16]);
-            testCActor->CreateActor(sceneManager);
-        }
         
         ImGui::End();
         
