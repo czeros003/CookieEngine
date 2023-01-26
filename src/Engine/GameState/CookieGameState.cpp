@@ -69,39 +69,7 @@ namespace CEngine
     //-----------------------------------------------------------------------------------
     void TutorialGameState::generateDebugText(float timeSinceLast, Ogre::String& outText)
     {
-        if (mDisplayHelpMode == 0)
-        {
-            outText = mHelpDescription;
-            outText += "\n\nPress F1 to toggle help";
-            outText +=
-                "\n\nProtip: Ctrl+F1 will reload PBS shaders (for real time template editing).\n"
-                "Ctrl+F2 reloads Unlit shaders.\n"
-                "Ctrl+F3 reloads Compute shaders.\n"
-                "Note: If the modified templates produce invalid shader code, "
-                "crashes or exceptions can happen.\n";
-            return;
-        }
-
-        const Ogre::FrameStats* frameStats = mGraphicsSystem->getRoot()->getFrameStats();
-
-        Ogre::String finalText;
-        finalText.reserve(128);
-        finalText = "Frame time:\t";
-        finalText += Ogre::StringConverter::toString(timeSinceLast * 1000.0f);
-        finalText += " ms\n";
-        finalText += "Frame FPS:\t";
-        finalText += Ogre::StringConverter::toString(1.0f / timeSinceLast);
-        finalText += "\nAvg time:\t";
-        finalText += Ogre::StringConverter::toString(frameStats->getAvgTime());
-        finalText += " ms\n";
-        finalText += "Avg FPS:\t";
-        finalText += Ogre::StringConverter::toString(1000.0f / frameStats->getAvgTime());
-        finalText += "\n\nPress F1 to toggle help";
-
-        outText.swap(finalText);
-
-        mDebugText->setCaption(finalText);
-        mDebugTextShadow->setCaption(finalText);
+        
     }
     //-----------------------------------------------------------------------------------
     void TutorialGameState::update(float timeSinceLast)

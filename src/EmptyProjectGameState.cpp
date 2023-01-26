@@ -572,31 +572,6 @@ namespace Demo
     void OgreNextImGuiGameState::generateDebugText(float timeSinceLast, Ogre::String& outText)
     {
         TutorialGameState::generateDebugText(timeSinceLast, outText);
-
-        if( mDisplayHelpMode == 2 )
-        {
-            outText += "\nHold SHIFT to decrease values\n[SPACE] Preset: ";
-            outText += mPresetName;
-            outText += "\nF5 Exposure = ";
-            outText += Ogre::StringConverter::toString( mExposure );
-            outText += "\nF6 Min Auto Exposure = ";
-            outText += Ogre::StringConverter::toString( mMinAutoExposure );
-            outText += "\nF7 Max Auto Exposure = ";
-            outText += Ogre::StringConverter::toString( mMaxAutoExposure );
-            outText += "\nF8 Bloom Threshold = ";
-            outText += Ogre::StringConverter::toString( mBloomFullThreshold );
-        }
-        else if( mDisplayHelpMode == 1 )
-        {
-            Ogre::uint32 visibilityMask = mGraphicsSystem->getSceneManager()->getVisibilityMask();
-
-            outText += "\nPress F2 to toggle animation. ";
-            outText += mAnimateObjects ? "[On]" : "[Off]";
-            outText += "\nPress F3 to show/hide animated objects. ";
-            outText += ( visibilityMask & 0x000000001 ) ? "[On]" : "[Off]";
-            outText += "\nPress F4 to show/hide palette of spheres. ";
-            outText += ( visibilityMask & 0x000000002 ) ? "[On]" : "[Off]";
-        }
     }
     //-----------------------------------------------------------------------------------
     void OgreNextImGuiGameState::mouseMoved(const SDL_Event& arg)
