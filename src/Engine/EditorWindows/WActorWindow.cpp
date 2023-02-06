@@ -12,6 +12,11 @@ namespace CEngine
     {
     }
 
+    WActorWindow::WActorWindow(const char* windowName): EditorWindow(windowName)
+    {
+    }
+
+
     void WActorWindow::startUiRender()
     {
         EditorWindow::startUiRender();

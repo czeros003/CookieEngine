@@ -564,7 +564,7 @@ namespace Demo
         ImGui::ShowDebugLogWindow();
         MainMenuBar->startUiRender();
         ActorsWindowManager->startUiRender();
-        // mCameraController->bMovableCamera = CameraSettings->bMoveCameraWhileHovered || (!ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered());
+        mCameraController->bMovableCamera = CameraSettings->bMoveCameraWhileHovered || (!ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered());
         
         // TutorialGameState::update(timeSinceLast);
     }

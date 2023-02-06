@@ -4,7 +4,7 @@ Wojciech Czerski - PJATK - Engineering Thesis
 ## How to install?
 Create folder where you want to keep project, for example 
 > root\MyProject
-
+![alt text](https://github.com/czeros003/CookieEngine/Screenshots/main/image.jpg?raw=true)
 Create Dependencies folder where you keep all additional libraries.
 > root\MyProject\Dependencies
 
