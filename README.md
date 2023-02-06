@@ -1,10 +1,16 @@
-# CookieEngine
-Wojciech Czerski - PJATK - Engineering Thesis
+![Alt text](./Screenshots/pjatk/Logo_EN_1.png "Cookie Engine Screen")
+# CookieEngine :cookie:
+Wojciech Czerski - PJATK - Engineering Thesis 
+
+
+![Alt text](./Screenshots/cookie.png "Cookie Engine Screen")
 
 ## How to install?
 Create folder where you want to keep project, for example 
 > root\MyProject
-![alt text](https://github.com/czeros003/CookieEngine/Screenshots/main/image.jpg?raw=true)
+
+![Alt text](./Screenshots/cookie.png "Cookie Engine Screen")
+
 Create Dependencies folder where you keep all additional libraries.
 > root\MyProject\Dependencies
 
