@@ -24,9 +24,10 @@ https://ogrecave.github.io/ogre-next/api/latest/_setting_up_ogre_windows.html#Bu
 ![Alt text](./Screenshots/Cmake_install.png "Ogre-next-deps make")
 ![Alt text](./Screenshots/ogre-build.png "Ogre install/build solution")
 
-Include SDL2 build library to Release folder in bin.
-To run DirectX add amd_ags_x64.dll
-Add Ogre Atmosphere.dll, resource.cfg to bin\release
+Include SDL2 build library to Release folder in bin.\..\
+To run DirectX add amd_ags_x64.dll\
+Add Ogre Atmosphere.dll, resource.cfg to bin\release\..\
+![Alt text](./Screenshots/binaries to add.png "Binaries to add")
 
 Clear %AppData%/CookiEngine to clear run config witf resource.cfg
 
