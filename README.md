@@ -33,7 +33,7 @@ Upcoming features :
 ### Why Cookie :cookie:?
 Why not :slightly_smiling_face:? It have many things in common
 - [x] I like cookies :yum:
-- [x] Everybody like cookies :pinched_fingers:
+- [x] Everybody like cookies
 - [x] Easy to use and understand, like cookie recipe 
 - [x] Impatiently waiting for the baking result
 - [x] Expecting to be amazing
