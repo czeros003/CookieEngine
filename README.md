@@ -1,14 +1,36 @@
 [//]: # (![Alt text]&#40;./Screenshots/pjatk/Logo_EN_1.png "Cookie Engine Screen"&#41;)
-# Cookie Engine :cookie:
-## Game Engine :video_game: implementation using OGRE renderer :japanese_ogre:
+# Cookie Engine :cookie: - Game Engine implementation using OGRE renderer
 Wojciech Czerski - PJAIT - Engineering Thesis
-
-## What it is?
-
-
 
 ![Alt text](./Screenshots/cookie.png "Cookie Engine - Dark Screen")
 ![Alt text](./Screenshots/cookie1.png "Cookie Engine - Default")
+## What it is?
+Hobby project.\
+Simplified "game engine" created with Ogre-next bleeding edge renderer with ImGui as editor UI.
+Works with OpenGL and DirectX. This is a complete base made of HDR-MSAA sample showing potential possibilities
+of creating own game engine. 
+
+### Purpose
+Created for an engineering thesis and research purposes, based on this project. MIT license.
+
+### Usage
+You want to create your own game engine, don't know where to start, how to use graphics API, backend systems etc.\
+This is a extendable project where you can implement your own UI, game logic, styles, layers and
+go further like adding scene loader. Easy to use, includes a lot of samples from which you can understand how it works.
+
+### Future
+I'm planning to continue this project adding more logic to it, 
+so it can became fully called Game Engine (as the goal is to create games with it).\
+Upcoming features :
+- Extended & Fixed Actor Transform
+- Variations of different Scene Objects
+- Loading custom textures, meshes
+- Full Task Bar options (Save, Undo, Redo)
+- Scene Loading/Saving
+- Physics Engine (like Bullet or PhysX)
+- Debugger
+
+
 
 ## How to install?
 Create folder where you want to keep project, for example 
