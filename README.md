@@ -5,7 +5,7 @@ Wojciech Czerski - PJAIT - Engineering Thesis
 ![Alt text](./Screenshots/cookie.png "Cookie Engine - Dark Screen")
 ![Alt text](./Screenshots/cookie1.png "Cookie Engine - Default")
 ## What it is?
-Hobby project.\
+Hobby project:relaxed:\
 Simplified "game engine" created with Ogre-next bleeding edge renderer with ImGui as editor UI.
 Works with OpenGL and DirectX. This is a complete base made of HDR-MSAA sample showing potential possibilities
 of creating own game engine. 
@@ -30,6 +30,14 @@ Upcoming features :
 - Physics Engine (like Bullet or PhysX)
 - Debugger
 
+### Why Cookie :cookie:?
+Why not :slightly_smiling_face:? It have many things in common
+- [x] I like cookies :yum:
+- [x] Everybody like cookies :pinched_fingers:
+- [x] Easy to use and understand, like cookie recipe 
+- [x] Impatiently waiting for the baking result
+- [x] Expecting to be amazing
+- [x] The outcome is sometimes a little bit overrated
 
 
 ## How to install?
@@ -43,19 +51,21 @@ Move there downloaded libraries ImGui, OGRE-next.
 
 ### OGRE
 
-For OGRE and it's dependencies do build with this tutorial step-by-step
-
-https://ogrecave.github.io/ogre-next/api/latest/_setting_up_ogre_windows.html#BuildingOgreWindows
+For OGRE and it's dependencies do build with this tutorial step-by-step or follow steps below\
+https://ogrecave.github.io/ogre-next/api/latest/_setting_up_ogre_windows.html#BuildingOgreWindows \
+Configure Ogre and it's dependencies with CMake (use CMake GUI or -make from console). 
+**Firstly** install / build dependencies for ogre-next-deps you downloaded. Compile for Release and Debug! 
+Then do the same for ogre-next.
 ![Alt text](./Screenshots/Cmake_install_2.png "Ogre-next make")
 ![Alt text](./Screenshots/Cmake_install.png "Ogre-next-deps make")
 ![Alt text](./Screenshots/ogre-build.png "Ogre install/build solution")
 
-Include SDL2 build library to Release folder in bin.\..\
+**Secondly** include SDL2 build library to Release folder in bin.\..\
 To run DirectX add amd_ags_x64.dll\
 Add Ogre Atmosphere.dll, resource.cfg to bin\release\..\
 ![Alt text](./Screenshots/binaries-to-add.png "Binaries to add")
 
-Clear %AppData%/CookiEngine to clear run config witf resource.cfg
+**Clear** %AppData%/CookiEngine to clear run config witf resource.cfg
 
 ### ImGui
 
