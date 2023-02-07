@@ -1,6 +1,10 @@
 [//]: # (![Alt text]&#40;./Screenshots/pjatk/Logo_EN_1.png "Cookie Engine Screen"&#41;)
 # Cookie Engine :cookie:
-Wojciech Czerski - PJAIT - Engineering Thesis 
+## Game Engine :video_game: implementation using OGRE renderer :japanese_ogre:
+Wojciech Czerski - PJAIT - Engineering Thesis
+
+## What it is?
+
 
 
 ![Alt text](./Screenshots/cookie.png "Cookie Engine - Dark Screen")
@@ -43,10 +47,6 @@ https://github.com/edherbert/ogre-next-imgui
 ### Execution build
 
 After proper installation hit compile on release version. 
-For more info / errors fix ping me in sections below.
-
-## How it works
-
-### What it includes
+For more info / errors fix ping me.
 
 
